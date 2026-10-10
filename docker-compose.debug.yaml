@@ -1,0 +1,34 @@
+services:
+  gm-product:
+    container_name: gm-product-debug
+    build:
+      context: .
+      dockerfile: ./Dockerfile.debug
+    volumes:
+      - ./:/app
+      # mount gopkg into container
+      - ../gopkg:/gopkg
+      # mount gm-core (shared protobuf contracts) into container
+      - ../gm-core:/gm-core
+    ports:
+      - "50060:50050" # gRPC server
+      # The admin port (50051, probes + metrics) is deliberately not published:
+      # gm-gateway already claims host 50061 for its public HTTP, and nothing
+      # outside the container needs probes. Use `make attach` and curl from
+      # inside when you want /metrics.
+      - "2302:2302" # Delve debugger port
+    networks:
+      - docker_stack
+    stdin_open: true
+    tty: true
+    entrypoint: ["bash"]
+    environment:
+      DATABASE_POSTGRES__HOST: postgres
+      DATABASE_POSTGRES__PORT: 5432
+    # cpus: 1
+    # mem_limit: 512M
+    # mem_reservation: 256M
+
+networks:
+  docker_stack:
+    external: true

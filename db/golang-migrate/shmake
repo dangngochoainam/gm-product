@@ -1,0 +1,21 @@
+#!/bin/bash
+
+source ./export-env.local.sh
+
+function build {
+  cd loader && go mod tidy && go build -buildvcs=false -o ../atlas-loader .
+}
+
+function diff {
+  atlas migrate diff --env gorm \
+  --dev-url "$DB_CONN_STRING" \
+  "$1"
+}
+
+function apply {
+  atlas migrate apply \
+  --url "$DB_CONN_STRING" \
+  --dir "file://migrations?format=golang-migrate"
+}
+
+"$@"
