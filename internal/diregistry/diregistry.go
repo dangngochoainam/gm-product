@@ -23,14 +23,19 @@ var (
 
 func BuildContainer() {
 	ctn := dig.New()
+	provide := func(constructor any) {
+		if err := ctn.Provide(constructor); err != nil {
+			panic(err)
+		}
+	}
 
 	// CONFIG
-	ctn.Provide(configs.LoadConfig)
+	provide(configs.LoadConfig)
 
 	// HELPER
-	ctn.Provide(copyhelper.NewModelConverter)
-	ctn.Provide(copyhelper.NewPbConverter)
-	ctn.Provide(func(cfg *configs.Config) httpclienthelper.HttpClient {
+	provide(copyhelper.NewModelConverter)
+	provide(copyhelper.NewPbConverter)
+	provide(func(cfg *configs.Config) httpclienthelper.HttpClient {
 		hc := cfg.HttpClientConfig
 		return httpclienthelper.NewHttpClientHelper(
 			httpclienthelper.WithClientTimeout(hc.Timeout),
@@ -40,7 +45,7 @@ func BuildContainer() {
 	})
 
 	// GORM
-	ctn.Provide(func(cfg *configs.Config) (*gorm.DB, error) {
+	provide(func(cfg *configs.Config) (*gorm.DB, error) {
 		pg := cfg.DatabasePostgres
 		opts := []gormhelper.GormHelperOption{}
 		if pg.LoggingEnabled {
@@ -60,13 +65,13 @@ func BuildContainer() {
 	})
 
 	// REPOSITORY
-	ctn.Provide(product.NewProductRepository)
+	provide(product.NewProductRepository)
 
 	// USECASE
-	ctn.Provide(usecase.NewProductUseCase)
+	provide(usecase.NewProductUseCase)
 
 	// CONTROLLER
-	ctn.Provide(api.NewAPI)
+	provide(api.NewAPI)
 
 	container = ctn
 }

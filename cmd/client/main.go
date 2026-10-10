@@ -29,7 +29,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)
 	}
-	defer conn.Close()
+	defer func() { _ = conn.Close() }()
 	c := productsvcv1.NewProductServiceClient(conn)
 
 	// Contact the server and print out its response.
