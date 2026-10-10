@@ -44,7 +44,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("failed to init logger: %v", err)
 	}
-	defer loghelper.Logger.Sync()
+	defer func() { _ = loghelper.Logger.Sync() }()
 
 	ctx := context.Background()
 	ctx = context.WithValue(ctx, commonhelper.TRACE_ID, "123123")
