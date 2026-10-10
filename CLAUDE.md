@@ -87,7 +87,8 @@ cần cả hai. Service gRPC tên là `ProductService`, nên các symbol sinh ra
 1. Sửa `../gm-core/proto/product/v1/dto/product.dto.proto` (message) hoặc
    `service/product.service.proto` (rpc)
 2. `cd ../gm-core && make gen-proto` → buf regenerate `../gm-core/application/product/v1/`.
-   Repo này không có target `gen-proto`: không bao giờ generate gì vào đây
+   Repo này không có target `gen-proto`: không bao giờ generate gì vào đây. Code sinh ra không
+   được commit, nên checkout gm-core mới cũng phải chạy bước này trước `make mod`
 3. `make mod` ở đây → tidy và vendor lại để thấy được thay đổi
 4. Implement hoặc cập nhật handler trong `internal/api/`
 
