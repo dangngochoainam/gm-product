@@ -17,8 +17,8 @@ shutdown_timeout: 25s
 database_postgres:
   host: localhost
   port: 5434
-  database: ecommerce
-  schema: user
+  database: product
+  schema: public
   username: root
   password: Abc12345
   logging_enabled: true
