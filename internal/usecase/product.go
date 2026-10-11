@@ -2,14 +2,15 @@ package usecase
 
 import (
 	"context"
+	"fmt"
 	"strings"
 
+	"github.com/dangngochoainam/gm-core/apperror"
 	"github.com/dangngochoainam/gm-product/internal/dto"
 	productrepo "github.com/dangngochoainam/gm-product/internal/repository/product"
 	"github.com/dangngochoainam/gopkg/copyhelper"
 	"github.com/dangngochoainam/gopkg/cursorhelper"
 	"github.com/dangngochoainam/gopkg/loghelper"
-	"github.com/dangngochoainam/gopkg/responsehelper"
 )
 
 type product struct {
@@ -27,7 +28,7 @@ type Product interface {
 }
 
 func (u *product) CreateManyProducts(ctx context.Context, input *dto.CreateManyProductsRequestDTO) (*dto.CreateManyProductsResponseDTO, error) {
-	result := &dto.CreateManyProductsResponseDTO{BaseResponseDTO: dto.BaseResponseDTO{IsProcessing: false, IsError: false}}
+	result := &dto.CreateManyProductsResponseDTO{}
 
 	inputs := make([]*productrepo.CreateProductInput, len(input.Products))
 	for i, p := range input.Products {
@@ -43,8 +44,7 @@ func (u *product) CreateManyProducts(ctx context.Context, input *dto.CreateManyP
 	created, err := u.productRepository.CreateMany(ctx, inputs, 10)
 	if err != nil {
 		loghelper.Logger.WithContext(ctx).Errorf("Failed while creating products: %v", err)
-		result.IsError = true
-		return result, responsehelper.ErrInternalServerError
+		return nil, apperror.ErrInternalServerError
 	}
 
 	result.Products = make([]*dto.ProductDetailDTO, len(created.Products))
@@ -62,8 +62,7 @@ func (u *product) CreateManyProducts(ctx context.Context, input *dto.CreateManyP
 
 func (u *product) ListProducts(ctx context.Context, input *dto.ListProductsRequestDTO) (*dto.ListProductsResponseDTO, error) {
 	result := &dto.ListProductsResponseDTO{
-		BaseResponseDTO: dto.BaseResponseDTO{},
-		Pagination:      &dto.BaseKeysetPaginationResponseDTO{},
+		Pagination: &dto.BaseKeysetPaginationResponseDTO{},
 	}
 
 	limit := input.Limit
@@ -77,12 +76,12 @@ func (u *product) ListProducts(ctx context.Context, input *dto.ListProductsReque
 	sortBy := input.SortBy
 	// TODO: I think sortBy will based on each api, each api will allow sortBy different
 	if sortBy != "" && sortBy != "created_at" && sortBy != "name" {
-		return result, responsehelper.ErrBadRequest
+		return nil, fmt.Errorf("%w: sortBy must be created_at or name", apperror.ErrBadRequest)
 	}
 
 	sortOrder := strings.ToUpper(input.SortOrder)
 	if sortOrder != "" && sortOrder != dto.SortOrderAsc && sortOrder != dto.SortOrderDesc {
-		return result, responsehelper.ErrBadRequest
+		return nil, fmt.Errorf("%w: sortOrder must be asc or desc", apperror.ErrBadRequest)
 	}
 	if sortOrder == "" {
 		sortOrder = dto.SortOrderDesc
@@ -92,7 +91,7 @@ func (u *product) ListProducts(ctx context.Context, input *dto.ListProductsReque
 	if input.After != "" {
 		cursor, err := cursorhelper.Decode[productrepo.ProductCursor](input.After)
 		if err != nil {
-			return result, responsehelper.ErrBadRequest
+			return nil, fmt.Errorf("%w: after is not a valid cursor", apperror.ErrBadRequest)
 		}
 		after = cursor
 	}
@@ -105,8 +104,7 @@ func (u *product) ListProducts(ctx context.Context, input *dto.ListProductsReque
 	})
 	if err != nil {
 		loghelper.Logger.WithContext(ctx).Errorf("Failed while listing products: %v", err)
-		result.IsError = true
-		return result, responsehelper.ErrInternalServerError
+		return nil, apperror.ErrInternalServerError
 	}
 
 	result.Products = make([]*dto.ProductDetailDTO, len(out.Products))
@@ -131,8 +129,7 @@ func (u *product) ListProducts(ctx context.Context, input *dto.ListProductsReque
 		})
 		if err != nil {
 			loghelper.Logger.WithContext(ctx).Errorf("Failed while encoding cursor: %v", err)
-			result.IsError = true
-			return result, responsehelper.ErrInternalServerError
+			return nil, apperror.ErrInternalServerError
 		}
 		result.Pagination.NextCursor = nextCursor
 	}

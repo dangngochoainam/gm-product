@@ -2,3 +2,4 @@
 .env
 db/golang-migrate/atlas-loader
 cmd/server/bin
+db/golang-migrate/loader/loader

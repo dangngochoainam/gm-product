@@ -63,7 +63,7 @@ func main() {
 	// server and handed to the same instance the admin listener exposes.
 	registry := prometheushelper.GetRegistry()
 
-	grpcServer := serverhelper.CreateGrpcServer(serverhelper.WithPrometheusRegistry(registry))
+	grpcServer := serverhelper.CreateGrpcServer(serverhelper.WithPrometheusRegistry(registry), serverhelper.WithServiceName("gm-product"))
 	productsvcv1.RegisterProductServiceServer(grpcServer, api)
 	go func() {
 		if err := grpcServer.Serve(lis); err != nil {

@@ -15,7 +15,6 @@ type CreateProductItemDTO struct {
 }
 
 type CreateManyProductsResponseDTO struct {
-	BaseResponseDTO
 	Products []*ProductDetailDTO
 }
 
@@ -35,7 +34,6 @@ type ListProductsRequestDTO struct {
 }
 
 type ListProductsResponseDTO struct {
-	BaseResponseDTO
 	Products   []*ProductDetailDTO
 	Pagination *BaseKeysetPaginationResponseDTO
 }

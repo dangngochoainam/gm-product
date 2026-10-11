@@ -12,7 +12,6 @@ import (
 func main() {
 	stmts, err := gormschema.New("postgres").Load(
 		&entities.Product{},
-		&entities.Job{},
 	)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "failed to load gorm schema: %v\n", err)

@@ -9,10 +9,6 @@ type (
 	BaseRequestDTO struct {
 		TraceId string
 	}
-	BaseResponseDTO struct {
-		IsProcessing bool
-		IsError      bool
-	}
 	BasePaginationRequestDTO struct {
 		Page  int32
 		Limit int32
